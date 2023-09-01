@@ -1,18 +1,49 @@
 #pragma once
 
 #include "Object.hpp"
+#include "bitmap_image.hpp"
+
+bool showTexture = false;
 
 class Floor : public Object {
 public: 
     double tileWidth;
     Vector3D cameraPos;
 
+    bitmap_image *whiteImage, *blackImage;
+
     Color color2;
+
+    Color getColorAtPicture(Vector3D &point, int i, int j, bool isWhite = true)
+    {
+        double x = point.x - this->referencePoint.x - i * tileWidth;
+        double y = point.y - this->referencePoint.y - j * tileWidth;
+
+        bitmap_image *image = isWhite ? whiteImage : blackImage;
+
+        int texture_x = floor((image->width() * x )/ tileWidth);
+        int texture_y = floor((image->height() * y )/ tileWidth);
+
+        texture_x = abs(texture_x);
+        texture_y = abs(texture_y);
+
+
+        unsigned char r, g, b;
+        image->get_pixel(texture_x, texture_y, r, g, b);
+
+        return Color(r / 255.0 * 0.5,  g / 255.0 * 0.5, b / 255.0 * 0.5);
+    }
 
     Floor(Vector3D &cameraPos, double tileWidth)
     {        
         this->tileWidth = tileWidth;
         this->referencePoint =  cameraPos;
+
+        //open image files
+        whiteImage = new bitmap_image("texture_w.bmp");      
+        blackImage = new bitmap_image("texture_b.bmp");
+
+        
         
         this->color = Color(1.0, 1.0, 1.0); // white
         this->color2 = Color(0.0, 0.0, 0.0); // black
@@ -27,9 +58,14 @@ public:
         int j = floor((point.y - this->referencePoint.y) / tileWidth);
 
         if((i + j) % 2 == 0){ // white tile
+
+            if(showTexture)  return getColorAtPicture(point, i, j);
+            
             return this->color;
         }
         else{
+
+            if(showTexture)  return getColorAtPicture(point, i, j, false);
             return this->color2; // black tile
         }
     }
@@ -84,6 +120,7 @@ public:
             for(int i = -n; i <= n; i++){
                 for(int j = -n; j <= n; j++){
                     if((i + j) % 2 == 0){
+
                         glColor3f(this->color.r, this->color.g, this->color.b);
                     }
                     else{

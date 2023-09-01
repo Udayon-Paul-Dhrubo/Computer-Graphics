@@ -5,6 +5,8 @@
 #include "Triangle.hpp"
 #include "Floor.hpp"
 
+#define SPACEBAR 32
+
 using namespace std;
 
 // window parameters
@@ -30,7 +32,7 @@ double nearDistance, farDistance, fovY, aspectRatio;
 extern vector<Object *> objects;
 extern vector<PointLight *> pointLights;
 extern vector<SpotLight *> spotLights;
-
+extern bool showTexture;
 
 bool drawaxes;
 void drawAxes();
@@ -666,6 +668,11 @@ void keyboardListener(unsigned char key, int xx, int yy)
 {
     double A = 1.0 * pi / 180.0;
     switch(key){
+		case SPACEBAR:			
+			showTexture = !showTexture;
+			cout << "spacebar pressed : showTexture = " << showTexture << endl;
+			break;
+
         case '0':
 			captureCount++;
             capture();
